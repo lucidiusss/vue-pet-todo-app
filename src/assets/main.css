@@ -8,6 +8,10 @@ body {
 }
 
 :root {
+  position: relative;
+}
+
+:root {
   --primary-50: 236 253 245;
   --primary-100: 209 250 229;
   --primary-200: 167 243 208;

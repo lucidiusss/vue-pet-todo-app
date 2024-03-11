@@ -1,5 +1,7 @@
 <script setup>
+import { provide, ref } from 'vue'
 import Header from './components/Header.vue'
+import AddTask from './components/AddTask.vue'
 </script>
 
 <template>

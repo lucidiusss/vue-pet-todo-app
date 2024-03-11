@@ -25,7 +25,7 @@ export default {
 
       // Colors
       'bg-zinc-200 dark:bg-zinc-500',
-      'placeholder:text-zinc-400 dark:placeholder:text-zinc-500',
+      'placeholder:text-zinc-400 dark:placeholder:text-zinc-700',
       'bg-zinc-200 dark:bg-zinc-500',
       'border',
       { 'border-zinc-300 dark:border-zinc-600': !props.invalid },

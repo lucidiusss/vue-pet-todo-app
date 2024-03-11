@@ -1,11 +1,12 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, provide } from 'vue'
 import { supabase } from '../supabase'
 import { useToast } from 'primevue/usetoast'
 import Toast from 'primevue/toast'
-import FloatLabel from 'primevue/floatlabel'
-import InputText from 'primevue/inputtext'
 import { Icon } from '@iconify/vue'
+
+import SignUp from './SignUp.vue'
+import SignIn from './SignIn.vue'
 
 const toast = useToast()
 const errorMsg = ref('')
@@ -15,26 +16,37 @@ const loading = ref(false)
 const email = ref('')
 const password = ref('')
 
-const signIn = ref(false)
+provide('data', {
+  email,
+  password
+})
+
+const signInButton = ref(false)
 
 const handleSignUp = async () => {
-  loading.value = true
-  const { data, error } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value,
-    options: {
-      emailRedirectTo: window.location.origin
+  try {
+    loading.value = true
+    const { data, error } = await supabase.auth.signUp({
+      email: email.value,
+      password: password.value,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
+    })
+    if (error) {
+      errorMsg.value = error.message
+      console.log(error)
+      showToast()
+    } else if (data) {
+      isSignedUp.value = true
+      console.log(data)
+      showToast()
     }
-  })
-  if (error) {
-    errorMsg.value = error.message
-    showToast()
-  } else if (data) {
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
   }
-}
-
-const handleSignIn = () => {
-  signIn.value = true
 }
 
 const handleLogin = async () => {
@@ -47,14 +59,17 @@ const handleLogin = async () => {
         emailRedirectTo: window.location.origin
       }
     })
-
     if (error) {
       errorMsg.value = error.message
+      console.log(error)
       showToast()
     } else if (data) {
       isSignedUp.value = true
+      console.log(data)
       showToast()
     }
+  } catch (error) {
+    console.log(error)
   } finally {
     loading.value = false
   }
@@ -109,7 +124,7 @@ const showToast = () => {
     toast.add({
       severity: 'success',
       summary: 'Success',
-      detail: 'Logged in.',
+      detail: 'check your email for further instructions!',
       life: 3000
     })
   }
@@ -117,74 +132,43 @@ const showToast = () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
-    <h1 class="text-zinc-500 transition ease-in-out delay-150">
-      {{ signIn ? 'login' : 'registration' }}
-    </h1>
-    <div class="flex gap-4 items-center justify-between">
+  <div class="relative flex flex-col items-center">
+    <SignUp
+      v-if="!signInButton"
+      @handle-discord="handleDiscord"
+      @handle-github="handleGithub"
+      @handle-sign-up="handleSignUp"
+      :loading="loading"
+    />
+    <SignIn
+      v-else
+      @handle-discord="handleDiscord"
+      @handle-github="handleGithub"
+      @handle-login="handleLogin"
+      @sign-in-button="signInButton"
+      :loading="loading"
+    />
+
+    <div class="flex justify-center gap-6 mt-8">
+      <h1 class="transition ease-in-out delay-150">
+        {{ signInButton ? 'dont have an account?' : 'already have an account?' }}
+      </h1>
       <button
-        @click="() => handleGithub()"
-        class="w-15 transition ease-in-out mt-2 px-4 py-2 rounded-xl bg-zinc-300 outline-none hover:bg-zinc-400 active:bg-zinc-500 dark:active:bg-zinc-700 delay-150 text-black hover:delay-0"
+        @click="() => (signInButton = !signInButton)"
+        class="transition ease-in-out delay-150 hover:delay-0 font-bold text-zinc-400 hover:text-black dark:hover:text-white"
       >
-        <Icon class="text-black transition ease-in-out" icon="mdi:github" width="32" />
+        {{ signInButton ? 'sign up' : 'sign in' }}
       </button>
-      <button
-        @click="() => handleDiscord()"
-        class="w-15 transition ease-in-out mt-2 px-4 py-2 rounded-xl bg-zinc-300 outline-none hover:bg-zinc-400 active:bg-zinc-500 dark:active:bg-zinc-700 delay-150 text-black hover:delay-0"
-      >
-        <Icon class="text-black transition ease-in-out" icon="ic:baseline-discord" width="32" />
-      </button>
+      <router-link to="/">
+        <button class="absolute top-0 left-0">
+          <Icon
+            icon="material-symbols:arrow-left-alt"
+            class="w-5 h-5 hover:-translate-x-1 text-zinc-500 hover:text-black dark:hover:text-white transition delay-150 ease-in-out hover:delay-0"
+          />
+        </button>
+      </router-link>
     </div>
-    <form @submit.prevent="handleSignUp">
-      <div class="flex flex-col gap-10 mt-10 transition ease-in-out delay-150">
-        <FloatLabel>
-          <InputText
-            class="p-2 rounded-xl bg-zinc-200 dark:bg-zinc-500 outline-none text-zinc-700 transition ease-in-out delay-150"
-            type="email"
-            v-model="email"
-          />
-          <label class="" for="email"><p class="text-zinc-400">email</p></label>
-        </FloatLabel>
-        <FloatLabel
-          ><InputText
-            class="p-2 rounded-xl bg-zinc-200 dark:bg-zinc-500 outline-none text-zinc-700 transition ease-in-out delay-150"
-            type="password"
-            v-model="password"
-          />
-          <label for="password"><p class="text-zinc-400">password</p></label></FloatLabel
-        >
-        <div class="flex items-center mx-auto" v-if="!signIn">
-          <input
-            v-if="!signIn"
-            type="submit"
-            class="w-40 transition ease-in-out mt-2 cursor-pointer p-2 rounded-xl dark:bg-zinc-300 bg-zinc-300 outline-none hover:bg-zinc-400 active:bg-zinc-500 dark:hover:bg-zinc-400 dark:active:bg-zinc-500 hover:text-white delay-150 text-black hover:delay-0"
-            :value="loading ? 'loading' : 'sign up'"
-            :disabled="loading"
-          />
-        </div>
-        <div class="flex items-center mx-auto" v-else>
-          <form @submit.prevent="handleLogin">
-            <button label="error" severity="danger">
-              <input
-                type="submit"
-                class="w-40 transition ease-in-out mt-8 cursor-pointer p-2 rounded-xl dark:bg-zinc-300 bg-zinc-300 outline-none hover:bg-zinc-400 active:bg-zinc-500 dark:hover:bg-zinc-500 dark:active:bg-zinc-600 hover:text-white delay-150 text-black hover:delay-0"
-                :value="loading ? 'loading' : 'sign in'"
-                :disabled="loading"
-              />
-            </button>
-          </form>
-        </div>
-      </div>
-    </form>
-  </div>
-  <div class="flex justify-center gap-6 mt-8">
-    <h1 class="transition ease-in-out delay-150">{{ signIn ? '' : 'already have an account?' }}</h1>
-    <button
-      @click="() => handleSignIn()"
-      class="transition ease-in-out delay-150 hover:delay-0 font-bold text-zinc-400 hover:text-black dark:hover:text-white"
-    >
-      {{ signIn ? '' : 'sign in' }}
-    </button>
+
     <Toast position="top-right" />
   </div>
 </template>

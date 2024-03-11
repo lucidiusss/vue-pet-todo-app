@@ -1,6 +1,5 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
-import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
 import { Icon } from '@iconify/vue'
 
 const darkMode = ref(false)
@@ -37,8 +36,8 @@ watch(darkMode, () => {
 })
 </script>
 
-<template v-auto-animate>
-  <div class="px-4 mt-5 flex justify-between transition ease-in-out delay-150">
+<template>
+  <nav class="px-4 mt-5 flex justify-between transition ease-in-out delay-150">
     <div class="flex gap-4">
       <router-link to="/">
         <button
@@ -75,5 +74,5 @@ watch(darkMode, () => {
         />
       </button>
     </div>
-  </div>
+  </nav>
 </template>
