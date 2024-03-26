@@ -86,7 +86,7 @@ async function signOut() {
     class="form-widget w-full h-72 grid grid-rows-1 text-center justify-center gap-5 relative"
     @submit.prevent="updateProfile"
   >
-    <div class="flex flex-col">
+    <div class="flex flex-col items-center">
       <img
         :src="`https://avatar.iran.liara.run/username?username=` + fullname"
         alt="avatar"
@@ -98,18 +98,18 @@ async function signOut() {
         type="text"
         v-model="session.user.email"
         disabled
-        class="w-40 bg-transparent text-center"
+        class="w-50 bg-transparent text-center"
       />
     </div>
     <div class="flex flex-col items-center gap-5">
-      <input
+      <!-- <input
         v-if="!loading"
         type="submit"
         class="w-40 transition ease-in-out cursor-pointer p-2 rounded-xl dark:bg-zinc-300 bg-zinc-300 outline-none hover:bg-zinc-400 active:bg-zinc-500 dark:hover:bg-zinc-500 dark:active:bg-zinc-600 hover:text-white delay-150 text-black hover:delay-0"
         value="update"
         :disabled="loading"
       />
-      <Icon class="mx-auto" icon="svg-spinners:ring-resize" v-else />
+      <Icon class="mx-auto" icon="svg-spinners:ring-resize" v-else /> -->
       <button
         class="w-40 transition ease-in-out cursor-pointer p-2 rounded-xl dark:bg-zinc-300 bg-zinc-300 outline-none hover:bg-zinc-400 active:bg-zinc-500 dark:hover:bg-zinc-500 dark:active:bg-zinc-600 hover:text-white delay-150 text-black hover:delay-0"
         @click="signOut"

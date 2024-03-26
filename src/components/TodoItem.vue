@@ -10,7 +10,8 @@ const props = defineProps({
   id: Number,
   task: String,
   description: String,
-  userId: String
+  userId: String,
+  isCompleted: Boolean
 })
 
 const isLoading = ref(false)
@@ -28,6 +29,7 @@ const updateModalBtn = () => {
   } else {
     updateModal.value = true
   }
+  console.log(taskIdListener.value)
 }
 
 const deleteModalBtn = () => {
@@ -37,6 +39,7 @@ const deleteModalBtn = () => {
   } else {
     deleteModal.value = true
   }
+  console.log(taskIdListener.value)
 }
 
 const handleTaskInfo = () => {
@@ -45,6 +48,18 @@ const handleTaskInfo = () => {
     showTaskInfo.value = false
   } else {
     showTaskInfo.value = true
+  }
+}
+
+const completeTask = async () => {
+  try {
+    const { data } = await supabase
+      .from('todos')
+      .update({ is_complete: !props.isCompleted })
+      .eq('id', props.id)
+      .select()
+  } catch (err) {
+    console.log(err)
   }
 }
 
@@ -76,16 +91,36 @@ provide('modals', {
   <div
     class="flex cursor-pointer mt-2 border mr-5 dark:border-zinc-800 border-zinc-200 rounded-md p-2 transition delay-150 ease-in-out hover:border-zinc-400 dark:hover:border-zinc-500 hover:delay-0"
   >
+    <div @click="completeTask()" class="mr-2 flex items-center">
+      <Icon
+        v-if="!isCompleted"
+        class="w-5 h-5 transition delay-150 ease-in-out text-zinc-500 hover:text-black dark:hover:text-white hover:delay-0"
+        icon="material-symbols:check-circle-outline"
+      />
+      <Icon
+        v-else
+        class="w-5 h-5 transition delay-150 ease-in-out text-zinc-500 hover:text-black dark:hover:text-white hover:delay-0"
+        icon="material-symbols:check-circle"
+      />
+    </div>
     <div
-      class="2xl:w-[550px] xl:w-[360px] lg-[250px] md:w-[135px] sm:w-[60px] flex justify-between"
+      class="2xl:w-[550px] xl:w-[360px] lg:w-[250px] md:w-[135px] sm:w-[60px] flex justify-between"
     >
       <p
         @click="handleTaskInfo()"
-        class="text-zinc-500 transition delay-150 ease-in-out truncate overflow-hidden"
+        v-if="!isCompleted"
+        class="text-zinc-500 transition delay-150 ease-in-out truncate overflow-hidden isCompleted:line-through"
       >
         {{ task }}
       </p>
-      <div class="flex gap-2">
+      <p
+        v-else
+        @click="handleTaskInfo()"
+        class="text-zinc-500 transition line-through delay-150 ease-in-out truncate overflow-hidden isCompleted:line-through"
+      >
+        {{ task }}
+      </p>
+      <div class="flex gap-2 relative">
         <button
           @click="updateModalBtn()"
           class="transition delay-150 ease-in-out text-zinc-500 hover:text-black dark:hover:text-white hover:delay-0"
